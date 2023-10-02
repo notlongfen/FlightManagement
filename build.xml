@@ -1,0 +1,5 @@
+<project name="ant" default="compile">
+  <target name="compile">
+    <echo message="Hello, world!"/>
+  </target>
+</project>
