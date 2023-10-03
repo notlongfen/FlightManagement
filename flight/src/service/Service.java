@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
-
-import entities.Crew;
+import java.util.HashMap;
+import entities.Crewf;
 import entities.Flight;
 import entities.Passenger;
 import entities.Reservation;
+import factory.CrewFactory;
 import factory.FlightFactory;
 import factory.PassengerFactory;
 import factory.ReservationFactory;
@@ -17,7 +18,8 @@ public class Service{
     static Scanner scanner = new Scanner(System.in); 
     private static final List<Flight> flights = new ArrayList<>();
     private static final List<Reservation> reservations = new ArrayList<>();
-    private static final List<Crew> crews = new ArrayList<>();
+    private static final List<Crewf> crews = new ArrayList<>();
+    static HashMap<Integer, Boolean> seats = new HashMap<Integer, Boolean>();
     public static void addNewFlight() {
         System.out.print("Enter flight number (must follow format Fxyzt, with xyzt is a number and no spaces, ex: F0001): ");
         String flightNumber = scanner.nextLine();
@@ -42,12 +44,12 @@ public class Service{
         String departureCity = scanner.nextLine();
         System.out.print("Enter destination city: ");
         String destinationCity = scanner.nextLine();
-        System.out.print("Enter date (in yyyy-MM-dd format): ");
+        System.out.print("Enter date (in dd-MM-yyyy format): ");
         String date = scanner.nextLine();
 
         List<Flight> availableFlights = new ArrayList<>();
         for (Flight flight : flights) {
-            if (flight.getDepartureCity().equals(departureCity) && flight.getDestinationCity().equals(destinationCity)) {
+            if (flight.getDepartureCity().equals(departureCity) && flight.getDestinationCity().equals(destinationCity) && flight.getDepartureTime().equals(date)) {
                 availableFlights.add(flight);
             }
         }
@@ -108,7 +110,37 @@ public class Service{
             System.out.println("Flight is full. Check-in not possible.");
             return;
         }
-    
+        if(reservation.getPassenger().getStatus()==true){
+            System.out.println("Passenger already checked in.");
+            return;
+        }
+
+        System.out.println("Please enter where you want to sit (ex: 1): ");
+        for(int i = 0; i < reservation.getFlight().getAvailableSeats(); i++){
+            if(seats.get(i) == true){
+                System.err.printf("[%d]", i+1+ " ");
+            }else{
+                System.out.printf("[%d]",i+1+" ");
+            }
+            if(i%5==0){
+                System.out.println();
+            }
+
+        }
+        
+        int seat = scanner.nextInt();
+        scanner.nextLine(); 
+        // if(seat < 1 || seat > reservation.getFlight().getAvailableSeats()){
+        //     System.out.println("Invalid seat number. Please try again.");
+        //     return;
+        // }
+        if(seats.get(seat-1) == true){
+            System.out.println("Seat is already taken. Please try again.");
+            return;
+        }
+        seats.put(seat-1, true);
+
+        reservation.getFlight().setAvailableSeats(reservation.getFlight().getAvailableSeats() - 1);
         reservation.getPassenger().setStatus(true);
         System.out.println("Check-in successful.");
     }
@@ -157,14 +189,14 @@ public class Service{
         System.out.print("Enter crew role: ");
         String role = scanner.nextLine();
 
-        Crew crew = CrewFactory.createCrew(name, role);
+        Crewf crew = CrewFactory.createCrew(name, role);
         crews.add(crew);
-        System.out.println("Crew added successfully.");
+        System.out.println("Crewf added successfully.");
     }
 
     public static void viewAllCrews() {
         System.out.println("All crews:");
-        for (Crew crew : crews) {
+        for (Crewf crew : crews) {
             System.out.println(crew.getName() + " - " + crew.getRole());
         }
     }
@@ -182,11 +214,11 @@ public class Service{
 
         System.out.println("Reservations:");
         for (Reservation reservation : FileManager.loadReservationsFromFile()) {
-            System.out.println(reservation.getReservationId() + " - " + reservation.getPassenger().getName() + " - " + reservation.getPassenger().getContactDetails() + " - " + reservation.getFlight().getFlightNumber());
+            System.out.println(reservation.getReservationId() + " - " + reservation.getPassenger().getName() + " - " + reservation.getPassenger().getContact() + " - " + reservation.getFlight().getFlightNumber());
         }
 
         System.out.println("Crews:");
-        for (Crew crew : FileManager.loadCrewsFromFile()) {
+        for (Crewf crew : FileManager.loadCrewsFromFile()) {
             System.out.println(crew.getName() + " - " + crew.getRole());
         }
     }

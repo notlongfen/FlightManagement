@@ -1,10 +1,10 @@
-// package factory;
+package factory;
 
-// import entities.Crew;
+import entities.Crewf;
 
-// public class CrewFactory {
-//     public static Crew createCrew(String name, String contact) {
-//         Crew crew = new Crew(name, contact);
-//         return crew;
-//     }
-// }
+public class CrewFactory {
+    public static Crewf createCrew(String name, String role) {
+        Crewf crew = new Crewf(name, role);
+        return crew;
+    }
+}
